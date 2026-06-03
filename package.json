@@ -2,23 +2,17 @@
   "name": "ledger-desktop",
   "version": "0.37.0",
   "description": "Modern accounting made simple with Ledger Desktop",
-
   "author": {
     "name": "Ledger Desktop",
     "email": "support@ledgerdesktop.app"
   },
-
   "homepage": "https://ledgerdesktop.app",
-
   "repository": {
     "type": "git",
     "url": "https://github.com/farah0022/Ledger-Desktop.git"
   },
-
   "license": "AGPL-3.0-only",
-
   "main": "background.js",
-
   "scripts": {
     "dev": "node build/scripts/dev.mjs",
     "build": "node build/scripts/build.mjs",
@@ -32,15 +26,12 @@
     "lint": "eslint . --ext ts,vue",
     "format": "prettier --write ."
   },
-
   "build": {
     "appId": "com.farah.ledgerdesktop",
     "productName": "Ledger Desktop",
-
     "directories": {
       "output": "dist_electron/bundled"
     },
-
     "publish": [
       {
         "provider": "github",
@@ -49,21 +40,25 @@
         "releaseType": "release"
       }
     ],
-
     "win": {
-      "target": ["nsis", "portable"]
+      "target": [
+        "nsis",
+        "portable"
+      ]
     },
-
     "mac": {
-      "target": ["dmg", "zip"],
+      "target": [
+        "dmg",
+        "zip"
+      ],
       "category": "public.app-category.finance"
     },
-
     "linux": {
-      "target": ["AppImage"]
+      "target": [
+        "AppImage"
+      ]
     }
   },
-
   "dependencies": {
     "@codemirror/autocomplete": "^6.4.2",
     "@codemirror/lang-vue": "^0.1.1",
@@ -83,7 +78,6 @@
     "vue": "^3.2.40",
     "vue-router": "^4.0.12"
   },
-
   "devDependencies": {
     "@codemirror/language": "^6.0.0",
     "@codemirror/state": "^6.0.0",
@@ -93,19 +87,18 @@
     "@types/assert": "^1.5.6",
     "@types/better-sqlite3": "^7.6.4",
     "@types/node": "^17.0.23",
+    "@vitejs/plugin-vue": "^6.0.7",
     "electron": "22.3.27",
     "electron-builder": "^24.9.1",
     "electron-updater": "^6.3.0",
     "eslint": "^8.43.0",
     "prettier": "^2.4.1",
-    "vite": "^5.4.21",
-    "typescript": "^4.6.2"
+    "typescript": "^4.6.2",
+    "vite": "^5.4.21"
   },
-
   "resolutions": {
     "node-abi": "^3.54.0"
   },
-
   "prettier": {
     "semi": true,
     "singleQuote": true,
