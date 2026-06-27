@@ -71,6 +71,7 @@
     "electron-devtools-installer": "^3.2.0",
     "autoprefixer": "^9.8.0",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.17",
+    "tailwindcss-rtl": "^0.9.0",
     "feather-icons": "^4.28.0",
     "knex": "^2.4.0",
     "lodash": "^4.17.23",
