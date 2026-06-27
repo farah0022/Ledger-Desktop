@@ -1,31 +1,50 @@
 name: Build
 
 on:
+  push:
+    branches: [main]
   pull_request:
-    paths-ignore:
-      - '**.md'
+    branches: [main]
   workflow_dispatch:
 
 jobs:
-  setup_and_build:
-    runs-on: macos-15-intel
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
     steps:
-      - name: Setup node
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20.18.1'
+          cache: 'yarn'
 
-      - name: Set yarn version
-        run: yarn set version 1.22.18
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
 
-      - name: Checkout Books
-        uses: actions/checkout@v4
-
-      - name: Install Dependencies
-        run: yarn
-
-      - name: Run build
+      - name: Build installers
         env:
-          CSC_IDENTITY_AUTO_DISCOVERY: false
-          APPLE_NOTARIZE: 0
-        run: yarn build -mw --publish never
+          # Disable auto-publish to GitHub Releases; we upload as artifacts instead.
+          # Re-enable by setting GH_TOKEN (with repo + workflow scopes) and
+          # uncommenting `publish: ['github']` in electron-builder-config.mjs.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Disable code-signing by default. To enable:
+          #   mac:  set CSC_LINK, CSC_KEY_PASSWORD, APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD, APPLE_TEAM_ID
+          #   win:  set WIN_CSC_LINK, WIN_CSC_KEY_PASSWORD
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: yarn build --publish never
+
+      - name: Upload installer artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ledger-desktop-${{ matrix.os }}
+          path: dist_electron/bundled/*
+          if-no-files-found: warn
+          retention-days: 14

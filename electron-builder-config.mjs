@@ -9,14 +9,12 @@ import { fileURLToPath } from 'url';
  */
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
-// const root = path.join(dirname, '..', '..');
-const root = dirname; // redundant, but is meant to keep with the previous line
-const buildDirPath = path.join(root, 'dist_electron', 'build');
-const packageDirPath = path.join(root, 'dist_electron', 'bundled');
+const buildDirPath = path.join(dirname, 'dist_electron', 'build');
+const packageDirPath = path.join(dirname, 'dist_electron', 'bundled');
 
-const frappeBooksConfig = {
-  productName: 'Frappe Books',
-  appId: 'io.frappe.books',
+const ledgerDesktopConfig = {
+  productName: 'Ledger Desktop',
+  appId: 'com.farah.ledgerdesktop',
   artifactName: '${productName}-v${version}-${os}-${arch}.${ext}',
   asarUnpack: '**/*.node',
   extraResources: [
@@ -30,66 +28,65 @@ const frappeBooksConfig = {
     output: packageDirPath,
     app: buildDirPath,
   },
+
+  // macOS — build unsigned by default (no Apple Developer cert in this repo).
+  // To enable signing + notarization later, set APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD,
+  // APPLE_TEAM_ID, CSC_LINK, and CSC_KEY_PASSWORD as GitHub Actions secrets.
   mac: {
-    type: 'distribution',
-    artifactName: '${productName}-v${version}-mac-${arch}.${ext}',
     category: 'public.app-category.finance',
     icon: 'build/icon.icns',
-    notarize: {
-      teamId: process.env.APPLE_TEAM_ID || '',
-    },
     hardenedRuntime: true,
     gatekeeperAssess: false,
     darkModeSupport: false,
     entitlements: 'build/entitlements.mac.plist',
     entitlementsInherit: 'build/entitlements.mac.plist',
-    publish: ['github'],
+    // publish: ['github'], // re-enable when GH_TOKEN publish flow is restored
   },
+
+  // Windows — build unsigned by default (no code-signing cert in this repo).
+  // SmartScreen will warn users on first run, but the installer will build and run.
+  // To sign later, set WIN_CSC_LINK and WIN_CSC_KEY_PASSWORD as secrets.
   win: {
-    publisherName: 'Frappe Technologies Pvt. Ltd.',
-    artifactName: '${productName}-v${version}-windows-${arch}.${ext}',
-    signDlls: true,
     icon: 'build/icon.ico',
-    publish: ['github'],
+    // publish: ['github'], // re-enable when GH_TOKEN publish flow is restored
     target: [
       {
         target: 'nsis',
-        arch: ['x64', 'ia32'],
+        arch: ['x64'],
       },
       {
         target: 'portable',
-        arch: ['x64', 'ia32'],
+        arch: ['x64'],
       },
     ],
   },
+
   nsis: {
     oneClick: false,
     perMachine: false,
     allowToChangeInstallationDirectory: true,
     installerIcon: 'build/installericon.ico',
     uninstallerIcon: 'build/uninstallericon.ico',
-    publish: ['github'],
+    // publish: ['github'],
   },
+
+  // Linux
   linux: {
     icon: 'build/icons',
     artifactName: '${productName}-v${version}-linux-${arch}.${ext}',
     category: 'Finance',
-    publish: ['github'],
+    // publish: ['github'],
     target: [
-      {
-        target: 'deb',
-        arch: ['x64', 'arm64'],
-      },
       {
         target: 'AppImage',
         arch: ['x64'],
       },
       {
-        target: 'rpm',
-        arch: ['x64', 'arm64'],
+        target: 'deb',
+        arch: ['x64'],
       },
     ],
   },
 };
 
-export default frappeBooksConfig;
+export default ledgerDesktopConfig;

@@ -1,5 +1,10 @@
 name: Build & Release
 
+# Triggered by pushing a tag like v0.37.0.
+# Builds unsigned installers for Windows + macOS and uploads them as artifacts.
+# Attach them to the GitHub Release manually, or extend this job to use
+# softprops/action-gh-release when you have signing + a publishing strategy.
+
 on:
   push:
     tags:
@@ -10,9 +15,10 @@ permissions:
 
 jobs:
   build:
+    name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-latest, macos-latest]
 
@@ -23,18 +29,22 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20.18.1'
+          cache: 'yarn'
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
 
-      - name: Build app
-        run: yarn build
+      - name: Build (unsigned)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: yarn build --publish never
 
-      - name: Upload artifacts
+      - name: Upload installers
         uses: actions/upload-artifact@v4
         with:
-          name: builds
+          name: ledger-desktop-${{ matrix.os }}
           path: dist_electron/bundled/*
+          if-no-files-found: warn
+          retention-days: 30
