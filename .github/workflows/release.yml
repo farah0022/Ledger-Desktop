@@ -1,9 +1,8 @@
 name: Build & Release
 
 # Triggered by pushing a tag like v0.37.0.
-# Builds unsigned installers for Windows + macOS and uploads them as artifacts.
-# Attach them to the GitHub Release manually, or extend this job to use
-# softprops/action-gh-release when you have signing + a publishing strategy.
+# Builds unsigned installers for Windows + macOS + Linux and auto-attaches
+# them to the GitHub Release.
 
 on:
   push:
@@ -20,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest]
+        os: [windows-latest, macos-latest, ubuntu-latest]
 
     steps:
       - name: Checkout
@@ -41,10 +40,16 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
         run: yarn build --publish never
 
-      - name: Upload installers
-        uses: actions/upload-artifact@v4
+      - name: Upload installers to Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: ledger-desktop-${{ matrix.os }}
-          path: dist_electron/bundled/*
-          if-no-files-found: warn
-          retention-days: 30
+          tag_name: ${{ github.ref_name }}
+          fail_on_unmatched_files: false
+          files: |
+            dist_electron/bundled/*.exe
+            dist_electron/bundled/*.dmg
+            dist_electron/bundled/*.zip
+            dist_electron/bundled/*.AppImage
+            dist_electron/bundled/*.deb
+            dist_electron/bundled/*.blockmap
+            dist_electron/bundled/latest*.yml
